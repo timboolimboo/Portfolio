@@ -8,3 +8,4 @@
 - GitHub-Actions-Workflow für GitHub Pages. `BASE_PATH` ist `/Portfolio/` für dieses Repository.
 - Zeilen-Animationen enden sichtbar: GSAP übernimmt die Transform, der Vorab-Versatz aus dem CSS bleibt nicht stehen.
 - Dokumentation: README, `docs/CONTENT.md`, dieses Changelog.
+- Eigener Server (Dokploy): Build ohne `BASE_PATH` bleibt bei `/`. `BASE_PATH=/Portfolio/` setzt nur der GitHub-Pages-Workflow. Dockerfile (nginx, Port 80) und Nixpacks-Start liegen im Repo.

@@ -15,23 +15,37 @@ Node 22, the same version as CI.
 ```bash
 npm install
 npm run dev       # http://localhost:5173
-npm run build     # writes dist/
+npm run build     # writes dist/ at the domain root
 npm run preview   # serves dist/ on 127.0.0.1
+npm start         # serves dist/ for Nixpacks (PORT, otherwise 80)
 ```
 
 `dev` and `build` regenerate the HTML from `src/data/content.js`. Those HTML files are gitignored.
 
+A build with no environment variables uses Vite base `/`. Asset URLs are `/assets/…` and `/media/…`. Do not set `BASE_PATH` on a server that hosts the site at the domain root.
+
+## Own server (Dokploy, domain root)
+
+Dokploy on brudiscloud should build branch `main` with build type **Dockerfile**. The image is a Node 22 build, then nginx serving `dist/` on port 80. Leave `BASE_PATH` unset. Point the domain at container port 80, with no subpath.
+
+```bash
+docker build -t tim-portfolio .
+docker run --rm -p 80:80 tim-portfolio
+```
+
+If the app is set to **Nixpacks** instead of Dockerfile, [`nixpacks.toml`](nixpacks.toml) runs the same root build and `npm start` ([`scripts/static-server.mjs`](scripts/static-server.mjs)). That process listens on `PORT`, or 80 when `PORT` is unset.
+
+Ein Build ohne Variablen bleibt unter `/`. `BASE_PATH` auf dem eigenen Server nicht setzen.
+
 ## GitHub Pages
 
-This repository is `timboolimboo/Portfolio`. The public site is a project site, so every asset must be prefixed with `/Portfolio/` — the repository name, case-sensitive.
-
-[`.github/workflows/pages.yml`](.github/workflows/pages.yml) runs on every push to `main` and on manual dispatch. It installs with `npm ci`, builds, and deploys `dist/` with the official Pages actions. The workflow sets:
+This repository is `timboolimboo/Portfolio`. Pages is a project site, so that deploy must prefix every asset with `/Portfolio/` — the repository name, case-sensitive. That prefix is set only in [`.github/workflows/pages.yml`](.github/workflows/pages.yml):
 
 ```text
 BASE_PATH=/Portfolio/
 ```
 
-for this repo. A repository named `<owner>.github.io` would be built with `BASE_PATH=/` instead. The value comes from `github.event.repository.name`, so a rename of the GitHub repo changes the prefix automatically.
+The workflow runs on every push to `main` and on manual dispatch. It installs with `npm ci`, builds, and deploys `dist/` with the official Pages actions. A repository named `<owner>.github.io` would be built with `BASE_PATH=/` instead. The value comes from `github.event.repository.name`, so a rename of the GitHub repo changes the prefix automatically.
 
 Live URL, after Pages is set to GitHub Actions and a `main` deploy has succeeded:
 
@@ -62,6 +76,10 @@ src/motion/             GSAP and Lenis
 src/styles/main.css
 public/media/<folder>/  project JPEGs
 public/favicon.svg
+Dockerfile              Node build, then nginx on port 80
+nginx.conf
+nixpacks.toml           same root build when Docker is not selected
+scripts/static-server.mjs
 .github/workflows/pages.yml
 ```
 

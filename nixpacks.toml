@@ -1,0 +1,12 @@
+# Nixpacks path for hosts that do not use the Dockerfile.
+# BASE_PATH stays unset, so the build is served at the domain root.
+providers = ["node"]
+
+[phases.install]
+cmds = ["npm ci --include=dev"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "npm start"
