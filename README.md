@@ -1,41 +1,78 @@
 # Tim Kattenbusch — Portfolio
 
-Static portfolio for Tim Kattenbusch, freelance digital UI/UX designer. The page is in German and built as a horizontal story on desktop, with a stacked layout on small screens.
+German portfolio for Tim Kattenbusch, freelance digital UI/UX designer. Desktop is one pinned horizontal story. Smaller screens use the same sections in a vertical stack, with a short vertical pin on „Die Arbeit“.
 
-The interaction model — pinned horizontal scroll, chapter panels, the “Die Arbeit” scale pause, line reveals, hover previews, and the page dissolve — is an original implementation. Copy, photographs, and the monogram belong to this site. Display type is [Instrument Serif](https://fonts.google.com/specimen/Instrument+Serif); interface type is [Outfit](https://fonts.google.com/specimen/Outfit). Both are open fonts.
+Deutsches Portfolio für Tim Kattenbusch. Auf dem Desktop läuft die Seite als horizontale Geschichte. Auf kleinen Screens stehen dieselben Abschnitte untereinander.
 
-Project images are the ones published on [hellotim.work](http://www.hellotim.work). The portrait frame is a labeled placeholder.
+The motion — horizontal scrub, the „Die Arbeit“ pause, line reveals, hover previews, the menu, and the page dissolve — is original code. Copy and project photographs come from [hellotim.work](http://www.hellotim.work). The portrait is a labeled placeholder. Display type is [Instrument Serif](https://fonts.google.com/specimen/Instrument+Serif); interface type is [Outfit](https://fonts.google.com/specimen/Outfit).
+
+Editing copy, projects, and the home order is covered in [docs/CONTENT.md](docs/CONTENT.md). Releases are listed in [CHANGELOG.md](CHANGELOG.md).
 
 ## Scripts
 
+Node 22, the same version as CI.
+
 ```bash
 npm install
-npm run dev      # http://localhost:5173
-npm run build    # writes dist/
-npm run preview  # serves dist/
+npm run dev       # http://localhost:5173
+npm run build     # writes dist/
+npm run preview   # serves dist/ on 127.0.0.1
 ```
 
-Node 22 is the version used in CI.
+`dev` and `build` regenerate the HTML from `src/data/content.js`. Those HTML files are gitignored.
 
 ## GitHub Pages
 
-`.github/workflows/pages.yml` builds on every push to `main` and deploys with GitHub Pages. The workflow sets `BASE_PATH` to `/<repository>/` for project sites and to `/` for a user or organization site named `<owner>.github.io`.
+This repository is `timboolimboo/Portfolio`. The public site is a project site, so every asset must be prefixed with `/Portfolio/` — the repository name, case-sensitive.
 
-In the repository settings, set **Pages → Build and deployment → Source** to **GitHub Actions**.
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml) runs on every push to `main` and on manual dispatch. It installs with `npm ci`, builds, and deploys `dist/` with the official Pages actions. The workflow sets:
 
-To build locally with the same prefix:
-
-```bash
-BASE_PATH=/your-repo/ npm run build
+```text
+BASE_PATH=/Portfolio/
 ```
 
-## Content
+for this repo. A repository named `<owner>.github.io` would be built with `BASE_PATH=/` instead. The value comes from `github.event.repository.name`, so a rename of the GitHub repo changes the prefix automatically.
 
-All copy, projects, navigation, and the home-page order live in `src/data/content.js`.
+Live URL, after Pages is set to GitHub Actions and a `main` deploy has succeeded:
 
-- `locale` is `"de"`. Add another catalog next to `de` and point `locale` at it.
-- `story` is the home sequence. Entries with `enabled: false` stay in the file and are not rendered.
-- Fotografie and Meeresschutz are already stubbed as `type: "feature"`. Set `enabled: true` and replace the placeholder text to show them. A new layout type needs a branch in `src/render/markup.js` (`renderPanel`).
-- Project galleries are files in `public/media/<project>/`.
+```text
+https://timboolimboo.github.io/Portfolio/
+```
 
-`npm run dev` and `npm run build` regenerate the HTML pages from that data.
+In the repository: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+
+Build locally with the same prefix:
+
+```bash
+BASE_PATH=/Portfolio/ npm run build
+npm run preview
+```
+
+Open `http://127.0.0.1:4173/Portfolio/`.
+
+## Structure
+
+```text
+src/data/content.js     text, projects, navigation, home order
+src/render/markup.js    HTML for each page and panel
+src/render/write.js     writes the HTML when Vite starts or builds
+src/main.js             stylesheet + boot
+src/boot.js             wires scroll, menu, intro, reveals
+src/motion/             GSAP and Lenis
+src/styles/main.css
+public/media/<folder>/  project JPEGs
+public/favicon.svg
+.github/workflows/pages.yml
+```
+
+Generated pages (`index.html`, `about/`, `works/`, `impressum/`, `404.html`) are created on each dev server start and build. Edit `src/data/content.js`, not those files.
+
+## Layout
+
+| Viewport | Behavior |
+| --- | --- |
+| ≥ 768px | Left rail, horizontal pinned story, work-list hover preview |
+| < 768px | Top bar, stacked sections, „Die Arbeit“ pinned vertically |
+| Tablet portrait | Rotate notice between 768px and 1024px |
+
+Home sections, in order: hero, about, Die Arbeit, selected work, services, clients, contact. Fotografie and Meeresschutz are in the data file and stay hidden until enabled. See [docs/CONTENT.md](docs/CONTENT.md).
